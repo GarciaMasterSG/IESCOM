@@ -2,11 +2,13 @@ import { type FormEvent, useState } from 'react'
 import { AuthField } from '../components/AuthField'
 import { PageHeader } from '../components/PageHeader'
 import { navigateTo } from '../utils/navigation'
+import { useNavigate } from 'react-router-dom'
 
 export function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const navigate = useNavigate()
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -19,6 +21,7 @@ export function LoginPage() {
       return
     }
     setError('')
+    navigate('/client/dashboard')
   }
 
   return (

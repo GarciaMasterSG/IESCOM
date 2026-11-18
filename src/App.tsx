@@ -1,54 +1,50 @@
-import { useEffect, useState } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
 import { LoginPage } from './pages/LoginPage'
 import { PasswordResetPage } from './pages/PasswordResetPage'
 import { SignUpPage } from './pages/SignUpPage'
 import IESCOMLogo from './assets/IESCOM-logo.png'
-import { navigateTo } from './utils/navigation'
-
-const verificationList = [
-  'signup',
-  'reset',
-  'login'
-]
-
-const pageFromPath = (): string => {
-  const path = window.location.pathname
-  if (path.endsWith('verification/signup')) return 'signup'
-  if (path.endsWith('verification/reset')) return 'reset'
-  if (path.endsWith('verification/login') || path.endsWith('/')) return 'login'
-  return 'error'
-}
+import { ClientProvider } from './context/ClientContext'
+import { ClientLayout } from './components/ClientLayout'
+import { DashboardPage } from './pages/client/DashboardPage'
+import { ProjectsPage } from './pages/client/ProjectsPage'
+import { NewProjectPage } from './pages/client/NewProjectPage'
+import { ProjectWorkspacePage } from './pages/client/ProjectWorkspacePage'
+import { InboxPage } from './pages/client/InboxPage'
+import { ProfilePage } from './pages/client/ProfilePage'
 
 function App() {
-  const [page, setPage] = useState<string>(pageFromPath())
-
-  useEffect(() => {
-    const handlePopState = () => setPage(pageFromPath())
-    console.log('Current page:', window.location.pathname)
-    if (pageFromPath() === 'error') {
-      navigateTo('login')
-      setPage('login')
-    }
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [])
-
   return (
-    <>
-      { verificationList.includes(page) && 
+    <Routes>
+      <Route path="/" element={
         <main className="auth-shell">
           <section className="auth-card" aria-labelledby="page-title">
-            <div className="logo-placeholder" role="img" aria-label="Company logo placeholder">
-              <img src={IESCOMLogo} alt="IESCOM" className="logo-mark"/>
-            </div>
-            {page === 'login' && <LoginPage />}
-            {page === 'signup' && <SignUpPage />}
-            {page === 'reset' && <PasswordResetPage />}
+            <div className="logo-placeholder"><img src={IESCOMLogo} alt="IESCOM" className="logo-mark" /></div>
+            <LoginPage />
           </section>
         </main>
-      }
-    </>
+      } />
+      <Route path="/verification/login" element={
+        <main className="auth-shell"><section className="auth-card"><div className="logo-placeholder"><img src={IESCOMLogo} alt="IESCOM" className="logo-mark" /></div><LoginPage /></section></main>
+      } />
+      <Route path="/verification/signup" element={
+        <main className="auth-shell"><section className="auth-card"><div className="logo-placeholder"><img src={IESCOMLogo} alt="IESCOM" className="logo-mark" /></div><SignUpPage /></section></main>
+      } />
+      <Route path="/verification/reset" element={
+        <main className="auth-shell"><section className="auth-card"><div className="logo-placeholder"><img src={IESCOMLogo} alt="IESCOM" className="logo-mark" /></div><PasswordResetPage /></section></main>
+      } />
+
+      <Route path="/client" element={<ClientProvider><ClientLayout /></ClientProvider>}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="projects" element={<ProjectsPage />} />
+        <Route path="projects/new" element={<NewProjectPage />} />
+        <Route path="projects/:projectId" element={<ProjectWorkspacePage />} />
+        <Route path="inbox" element={<InboxPage />} />
+        <Route path="profile" element={<ProfilePage />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
 
